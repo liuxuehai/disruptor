@@ -32,7 +32,7 @@ public final class HistogramTest
     @Test
     public void shouldSizeBasedOnBucketConfiguration()
     {
-        assertThat(Long.valueOf(histogram.getSize()), is(Long.valueOf(INTERVALS.length)));
+        assertThat(Long.valueOf(histogram.getSize()), is(Long.valueOf(INTERVALS.length))); 
     }
 
     @Test

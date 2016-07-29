@@ -36,12 +36,12 @@ class RhsPadding extends Value
 }
 
 /**
- * <p>Concurrent sequence class used for tracking the progress of
- * the ring buffer and event processors.  Support a number
- * of concurrent operations including CAS and order writes.
- *
+ * <p>
+ *  并发序列类用于跟踪ring buffer和事件处理器的进展
+ *  支持多个 并发操作，包括CAS和秩序写入
  * <p>Also attempts to be more efficient with regards to false
  * sharing by adding padding around the volatile field.
+ *  通过添加padding(补齐) around在volatile field上,尝试让false sharing(伪共享) 更高效
  */
 public class Sequence extends RhsPadding
 {

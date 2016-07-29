@@ -20,25 +20,30 @@ import java.math.RoundingMode;
 import java.util.Arrays;
 
 /**
- * <p>Histogram for tracking the frequency of observations of values below interval upper bounds.</p>
+ * <p>Histogram跟踪以下区间上限值的观测频率。
+ *  </p>
  * <p>
- * <p>This class is useful for recording timings across a large number of observations
- * when high performance is required.<p>
+ * <p>这个类在大量观测记录计时是有用当需要高的性能。
+ * <p>
  * <p>
  * <p>The interval bounds are used to define the ranges of the histogram buckets. If provided bounds
  * are [10,20,30,40,50] then there will be five buckets, accessible by index 0-4. Any value
  * 0-10 will fall into the first interval bar, values 11-20 will fall into the
- * second bar, and so on.</p>
+ * second bar, and so on.
+ * 
+ *   间隔边界用于定义histogram桶的范围
+ * 
+ * </p>
  */
 public final class Histogram
 {
-    // tracks the upper intervals of each of the buckets/bars
+    // 跟踪每个桶/杆的上线间隔
     private final long[] upperBounds;
-    // tracks the count of the corresponding bucket
+    // 跟踪对应的桶的计数
     private final long[] counts;
-    // minimum value so far observed
+    // 最小值到目前为止观察
     private long minValue = Long.MAX_VALUE;
-    // maximum value so far observed
+    // 最大值到目前为止观察
     private long maxValue = 0L;
 
     /**
@@ -127,6 +132,7 @@ public final class Histogram
         int high = upperBounds.length - 1;
 
         // do a classic binary search to find the high value
+        // 做一个经典的二分搜索找到高价值
         while (low < high)
         {
             int mid = low + ((high - low) >> 1);
@@ -141,6 +147,7 @@ public final class Histogram
         }
 
         // if the binary search found an eligible bucket, increment
+        // 如果二分搜索找到一个合格的bucket，增加
         if (value <= upperBounds[high])
         {
             counts[high]++;
@@ -170,9 +177,11 @@ public final class Histogram
     }
 
     /**
-     * <p>Add observations from another Histogram into this one.</p>
+     * <p>从另一个Histogram添加观察到这一个。
+     * </p>
      * <p>
-     * <p>Histograms must have the same intervals.</p>
+     * <p>Histograms必须具有相同的时间间隔
+     * </p>
      *
      * @param histogram from which to add the observation counts.
      * @throws IllegalArgumentException if interval count or values do not match exactly
@@ -256,32 +265,39 @@ public final class Histogram
     }
 
     /**
-     * <p>Calculate the mean of all recorded observations.</p>
+     * <p>计算所有观察记录的平均值。</p>
      * <p>
      * <p>The mean is calculated by summing the mid points of each interval multiplied by the count
      * for that interval, then dividing by the total count of observations.  The max and min are
      * considered for adjusting the top and bottom bin when calculating the mid point, this
-     * minimises skew if the observed values are very far away from the possible histogram values.</p>
+     * minimises skew if the observed values are very far away from the possible histogram values.
+     * 
+     *  平均值由中点每个间隔乘以计数相加来计算
+                     对于该间隔，然后除以通过观测的总数。 MAX和MIN是
+                     考虑用于计算中间点时调整所述顶部和底部的槽，这
+        如果所观察到的值非常远离可能直方图值最小化歪斜。
+     * </p>
      *
      * @return the mean of all recorded observations.
      */
     public BigDecimal getMean()
     {
-        // early exit to avoid divide by zero later
+        // 提前退出零，以避免以后除0
         if (0L == getCount())
         {
             return BigDecimal.ZERO;
         }
 
-        // precalculate the initial lower bound; needed in the loop
+        // 预先计算初始下界;在循环中需要
         long lowerBound = counts[0] > 0L ? minValue : 0L;
-        // use BigDecimal to avoid precision errors
+        // 使用的BigDecimal避免精度误差
         BigDecimal total = BigDecimal.ZERO;
 
-        // midpoint is calculated as the average between the lower and upper bound
-        // (after taking into account the min & max values seen)
-        // then, simply multiply midpoint by the count of values at the interval (intervalTotal)
-        // and add to running total (total)
+        // 中点被计算为下限和上限之间的平均
+        // (考虑到后最小和最大值看到)
+        // 
+        //  然后，由时间间隔的计数简化乘法中点
+        //  并添加到运行总数 (total)
         for (int i = 0, size = upperBounds.length; i < size; i++)
         {
             if (0L != counts[i])
@@ -293,7 +309,7 @@ public final class Histogram
                 total = total.add(intervalTotal);
             }
 
-            // and recalculate the lower bound for the next time around the loop
+            // 并计算下界为下一次循环中使用
             lowerBound = Math.max(upperBounds[i] + 1L, minValue);
         }
 
@@ -321,9 +337,10 @@ public final class Histogram
     }
 
     /**
-     * <p>Get the interval upper bound for a given factor of the observation population.</p>
+     * <p>观测数据的一个给定的因数得到时间间隔的上限
+     * </p>
      * <p>
-     * <p>Note this does not get the actual percentile measurement, it only gets the bucket</p>
+     * <p>请注意，这并没有得到实际的测量百分位，它只是获取bucket</p>
      *
      * @param factor representing the size of the population.
      * @return the interval upper bound.
